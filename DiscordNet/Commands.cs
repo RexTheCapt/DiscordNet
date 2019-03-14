@@ -38,24 +38,46 @@ namespace DiscordNet
         {
             if (messageStrings.Length == 2)
             {
-                IReadOnlyCollection<SocketGuildUser> socketGuildUsers = client.Guilds.First().Users;
-                List<SocketGuildUser> userMatchList = new List<SocketGuildUser>();
-
-                foreach (SocketGuildUser user in socketGuildUsers)
-                    if ($"{user.Username}#{user.DiscriminatorValue} {user.Nickname}".ToLower()
-                        .Contains(messageStrings[1].ToLower()))
-                        userMatchList.Add(user);
-
                 string userString = "";
-                foreach (SocketGuildUser user in userMatchList)
+                ulong userCountTotal = 0;
+
+                foreach (SocketGuild clientGuild in client.Guilds)
                 {
-                    string m =
-                        $"`{user.Nickname}` {user.Username}#{user.DiscriminatorValue} {user.Id}".ToLower();
-                    Log.Write(m);
-                    userString += m + "\n";
+                    IReadOnlyCollection<SocketGuildUser> socketGuildUsers = clientGuild.Users;
+                    List<SocketGuildUser> userMatchList = new List<SocketGuildUser>();
+
+                    foreach (SocketGuildUser user in socketGuildUsers)
+                        if (messageStrings[1] != "*" && $"{user} {user.Nickname}".ToLower().Contains(messageStrings[1].ToLower()))
+                        {
+                            userMatchList.Add(user);
+                            userCountTotal++;
+                        }
+                        else if (messageStrings[1] == "*")
+                        {
+                            userMatchList.Add(user);
+                            userCountTotal++;
+                        }
+
+                    foreach (SocketGuildUser user in userMatchList)
+                    {
+                        string m = $"`{user.Nickname}` {user.Username}#{user.DiscriminatorValue} {user.Id} [{clientGuild.Name}]".ToLower();
+                        Log.Write(m);
+
+                        if (userString.Length < 1800)
+                        {
+                            userString += m + "\n";
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
                 }
 
-                await message.Channel.SendMessageAsync($"Found users:\n```\n{userString}\n```");
+                if (userString.Length >= 1800)
+                    userString += $"\n.....";
+
+                await message.Channel.SendMessageAsync($"Found users:\n```\n{userString}\n```\nTotal hits: {userCountTotal}");
                 return;
             }
 
