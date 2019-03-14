@@ -250,7 +250,7 @@ namespace DiscordNet
                 switch (messageStrings[0].ToLower())
                 {
                     case "ping":
-                        await message.Channel.SendMessageAsync("pong!");
+                        await message.Channel.SendMessageAsync("Pong!");
                         break;
                     case "prefix":
                         Prefix = await commands.Prefix(messageStrings, message, Prefix);
