@@ -216,7 +216,7 @@ namespace DiscordNet
             if (message.Channel is ITextChannel)
             {
                 Log.Write(
-                    $"{guildChannel.Guild.Name}/{message.Channel}/{message.Author.Username}#{message.Author.Discriminator}");
+                    $"{(guildChannel == null ? "-[ERROR]-" : guildChannel.Guild.Name)}/{message.Channel}/{message.Author.Username}#{message.Author.Discriminator}");
                 Log.Write($"{message.Content}", false);
             }
             else
