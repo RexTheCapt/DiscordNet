@@ -252,6 +252,9 @@ namespace DiscordNet
                     case "ping":
                         await message.Channel.SendMessageAsync("Pong!");
                         break;
+                    case "marco":
+                        await message.Channel.SendMessageAsync("Polo!");
+                        break;
                     case "prefix":
                         Prefix = await commands.Prefix(messageStrings, message, Prefix);
                         break;
