@@ -214,10 +214,16 @@ namespace DiscordNet
             SocketGuildChannel guildChannel = message.Channel as SocketGuildChannel;
 
             if (message.Channel is ITextChannel)
+            {
                 Log.Write(
-                    $"{guildChannel.Guild.Name}/{message.Channel}/{message.Author.Username}#{message.Author.Discriminator} : {message.Content}");
+                    $"{guildChannel.Guild.Name}/{message.Channel}/{message.Author.Username}#{message.Author.Discriminator}");
+                Log.Write($"{message.Content}", false);
+            }
             else
-                Log.DmWrite($"DM/{message.Author.Username}#{message.Author.Discriminator} : {message.Content}");
+            {
+                Log.DmWrite($"DM/{message.Author.Username}#{message.Author.Discriminator}");
+                Log.DmWrite($"{message.Content}", false);
+            }
 
             if (message.Author.Id == 288351323940847616 && message.Content.ToLower().Contains("school") &&
                 message.Content.ToLower().Contains("boring"))

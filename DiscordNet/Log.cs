@@ -52,9 +52,9 @@ namespace DiscordNet
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
-        public static void DmWrite(string message)
+        public static void DmWrite(string message, bool showTime = true)
         {
-            Write(message, color:ConsoleColor.DarkGray);
+            Write(message, showTime, ConsoleColor.DarkGray);
         }
     }
 }
