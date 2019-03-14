@@ -273,7 +273,7 @@ namespace DiscordNet
                         await commands.Shutdown(message, isOwner);
                         break;
                     case "info":
-                        await commands.Info(instanceId.Id(), message, _botPaused);
+                        await commands.Info(instanceId.Id(), message, _botPaused, _client);
                         break;
                     case "pause":
                         _botPaused = await commands.Pause(messageStrings[1], instanceId, isOwner, message);
@@ -293,7 +293,7 @@ namespace DiscordNet
                     case "info":
                         if (message.Channel is IDMChannel)
                         {
-                            await commands.Info(instanceId.Id(), message, _botPaused);
+                            await commands.Info(instanceId.Id(), message, _botPaused, _client);
                         }
                         break;
                 }

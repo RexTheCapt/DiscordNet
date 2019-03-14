@@ -83,16 +83,29 @@ namespace DiscordNet
             }
         }
 
-        public async Task Info(string instanceId, SocketMessage message, bool isFrozen)
+        public async Task Info(string instanceId, SocketMessage message, bool isFrozen, DiscordSocketClient client)
         {
+            IReadOnlyCollection<SocketGuildUser> socketGuildUsers = client.Guilds.First().Users;
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
             string version = fvi.FileVersion;
+
+            SocketGuildUser owner = null;
+
+            foreach (SocketGuildUser user in socketGuildUsers)
+            {
+                if (user.Id == BotUser.Default.OwnerID)
+                {
+                    owner = user;
+                    break;
+                }
+            }
 
             string output = "Bot Info:\n" +
                             "```\n" +
                             $"Version: {version}\n" +
                             $"Instance ID: {instanceId} {(isFrozen ? "(on ice)" : "")}\n" +
+                            $"Owner: {(owner == null ? "[NONE]#****" : $"{owner.Username}#{owner.Discriminator}")}\n" +
                             "```";
 
             await message.Channel.SendMessageAsync(output);
