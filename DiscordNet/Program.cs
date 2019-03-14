@@ -255,6 +255,9 @@ namespace DiscordNet
                     case "marco":
                         await message.Channel.SendMessageAsync("Polo!");
                         break;
+                    case "mia":
+                        await message.Channel.SendMessageAsync("Maria!");
+                        break;
                     case "prefix":
                         Prefix = await commands.Prefix(messageStrings, message, Prefix);
                         break;
@@ -269,6 +272,9 @@ namespace DiscordNet
                         break;
                     case "pause":
                         _botPaused = await commands.Pause(messageStrings[1], instanceId, isOwner, message);
+                        break;
+                    case "get-servers":
+                        await commands.GetServers(_client, message);
                         break;
                 }
             }

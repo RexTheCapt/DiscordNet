@@ -144,5 +144,17 @@ namespace DiscordNet
 
             return true;
         }
+
+        public async Task GetServers(DiscordSocketClient client, SocketMessage message)
+        {
+            string s = "";
+
+            foreach (SocketGuild clientGuild in client.Guilds)
+            {
+                s += $"{clientGuild.Name}, ";
+            }
+
+            await message.Channel.SendMessageAsync(s);
+        }
     }
 }
