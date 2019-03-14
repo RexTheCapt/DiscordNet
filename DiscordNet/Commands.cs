@@ -1,16 +1,20 @@
-﻿using System;
+﻿#region usings
+
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+
+#endregion
 
 namespace DiscordNet
 {
     internal class Commands
     {
-        private Log _log = new Log();
-
         public async Task<string> Prefix(string[] messageStrings, SocketMessage message, string prefix)
         {
             if (messageStrings.Length == 1)
@@ -47,7 +51,7 @@ namespace DiscordNet
                 {
                     string m =
                         $"`{user.Nickname}` {user.Username}#{user.DiscriminatorValue} {user.Id}".ToLower();
-                    _log.Write(m);
+                    Log.Write(m);
                     userString += m + "\n";
                 }
 
@@ -55,10 +59,10 @@ namespace DiscordNet
                 return;
             }
 
-            await message.Channel.SendMessageAsync($"Correct usage:\n```\nuid <username>\n```");
+            await message.Channel.SendMessageAsync("Correct usage:\n```\nuid <username>\n```");
         }
 
-        public async Task Shutdown(SocketMessage message, bool IsOwner)
+        public async Task Shutdown(SocketMessage message, bool isOwner)
         {
             if (message.Channel is ITextChannel)
             {
@@ -67,9 +71,9 @@ namespace DiscordNet
             }
             else
             {
-                if (IsOwner)
+                if (isOwner)
                 {
-                    await message.Channel.SendMessageAsync($"Sorry, you have no access to kill me.");
+                    await message.Channel.SendMessageAsync("Sorry, you have no access to kill me.");
                 }
                 else
                 {
@@ -81,15 +85,20 @@ namespace DiscordNet
 
         public async Task Info(string instanceId, SocketMessage message, bool isFrozen)
         {
-            string output = $"Bot Info:\n" +
-                            $"```\n" +
-                            $"Instance ID: {instanceId} {(isFrozen ? $"(on ice)" : $"")}\n" +
-                            $"```";
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+            string version = fvi.FileVersion;
+
+            string output = "Bot Info:\n" +
+                            "```\n" +
+                            $"Version: {version}\n" +
+                            $"Instance ID: {instanceId} {(isFrozen ? "(on ice)" : "")}\n" +
+                            "```";
 
             await message.Channel.SendMessageAsync(output);
         }
 
-        public async Task<bool> Pause(string id, InstanceID instanceId, bool isOwner, SocketMessage message)
+        public async Task<bool> Pause(string id, InstanceId instanceId, bool isOwner, SocketMessage message)
         {
             if (isOwner)
             {
@@ -101,15 +110,13 @@ namespace DiscordNet
 
                 return false;
             }
-            else
-            {
-                await message.Channel.SendMessageAsync(
-                    $"Sorry {message.Author.Mention}, you do not have the priviledges to put me on ice.");
-                return false;
-            }
+
+            await message.Channel.SendMessageAsync(
+                $"Sorry {message.Author.Mention}, you do not have the priviledges to put me on ice.");
+            return false;
         }
 
-        public async Task<bool> Continue(string id, InstanceID instanceId, bool isOwner, SocketMessage message)
+        public async Task<bool> Continue(string id, InstanceId instanceId, bool isOwner, SocketMessage message)
         {
             if (isOwner)
             {
