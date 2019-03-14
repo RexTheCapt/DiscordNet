@@ -245,11 +245,12 @@ namespace DiscordNet
 
             if (message.MentionedUsers.Count != 0)
             {
+                SocketGuildChannel guildChannel = message.Channel as SocketGuildChannel;
+
                 Log.Write("Users mentioned");
 
                 foreach (SocketUser user in message.MentionedUsers)
-                    await user.SendMessageAsync(
-                        $"You got mentioned by {message.Author.Username}#{message.Author.Discriminator} in {message.Channel.Name}");
+                    await user.SendMessageAsync($"You got mentioned by {(guildChannel == null ? "DM" : $"{guildChannel.Guild.Name}")}\\{message.Channel.Name}\\{message.Author}");
             }
 
             if (!_botPaused && message.Content.StartsWith(Prefix) || (message.Channel is IDMChannel && !_botPaused))
