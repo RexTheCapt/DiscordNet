@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -11,16 +12,16 @@ using Discord.WebSocket;
 
 namespace DiscordNet
 {
-    public class InstanceID
+    public class InstanceId
     {
         private int _id;
 
-        public InstanceID()
+        public InstanceId()
         {
-            NewID();
+            NewId();
         }
 
-        public string NewID()
+        public string NewId()
         {
             Random rdm = new Random();
             _id = rdm.Next(int.MinValue, int.MaxValue);
@@ -36,7 +37,17 @@ namespace DiscordNet
     internal class Program
     {
         private readonly DiscordSocketClient _client;
-        private readonly Log _log = new Log();
+
+        private static string Version
+        {
+            get
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+                string version = fvi.FileVersion;
+                return version;
+            }
+        }
 
         private string Prefix
         {
@@ -49,9 +60,9 @@ namespace DiscordNet
         }
         private string Token => $"{BotUser.Default.Token}";
         
-        InstanceID instanceId = new InstanceID();
+        InstanceId instanceId = new InstanceId();
 
-        private bool botPaused = false;
+        private bool _botPaused;
 
         #region Startup functions
 
@@ -70,6 +81,8 @@ namespace DiscordNet
         private static void Main()
         {
             Console.Title = "Discord Bot";
+
+            Log.Info($"Version: {Version}");
 
             bool hasToken = false;
 
@@ -114,13 +127,13 @@ namespace DiscordNet
             {
                 if (e.ToString().Contains("401: Unauthorized"))
                 {
-                    Console.WriteLine("Unauthorized... resetting token file...");
+                    Log.Error("Unauthorized... resetting token file...");
                     File.Delete("BotToken.txt");
                     GenerateTokenFile();
                 }
                 else
                 {
-                    Console.WriteLine(e);
+                    Log.Error(e);
                 }
             }
         }
@@ -139,7 +152,7 @@ namespace DiscordNet
 
             foreach (string file in Directory.GetFiles("./", "*.txt")) Console.WriteLine(file);
 
-            Console.WriteLine("Generated default file and opening...");
+            Log.Info("Generated default file and opening...");
 
             Process.Start("BotToken.txt");
 
@@ -151,7 +164,7 @@ namespace DiscordNet
             await _client.LoginAsync(TokenType.Bot, Token, false);
             await _client.StartAsync();
             
-            _log.Info($"Instance ID: {instanceId.Id()}");
+            Log.Info($"Instance ID: {instanceId.Id()}");
 
             #region Set Owner ID
 
@@ -163,7 +176,7 @@ namespace DiscordNet
                 {
                     string read = sr.ReadLine();
 
-                    if (read.StartsWith("OwnerID="))
+                    if (read != null && read.StartsWith("OwnerID="))
                     {
                         optionFound = true;
 
@@ -172,11 +185,11 @@ namespace DiscordNet
                             string[] split = read.Split('=');
                             BotUser.Default.OwnerID = Convert.ToUInt64(split[1]);
                             BotUser.Default.Save();
-                            _log.Info($"Owner ID set to {BotUser.Default.OwnerID}");
+                            Log.Info($"Owner ID set to {BotUser.Default.OwnerID}");
                         }
                         catch
                         {
-                            _log.Error("Unable to set Owner ID");
+                            Log.Error("Unable to set Owner ID");
                         }
 
                         break;
@@ -185,7 +198,7 @@ namespace DiscordNet
 
                 if (!optionFound)
                 {
-                    _log.Error("OwnerID not found in BotToken.txt");
+                    Log.Error("OwnerID not found in BotToken.txt");
                 }
             }
 
@@ -196,7 +209,7 @@ namespace DiscordNet
         }
         private Task ReadyAsync()
         {
-            Console.WriteLine($"{_client.CurrentUser} is connected!");
+            Log.Info($"{_client.CurrentUser} is connected!");
 
             return Task.CompletedTask;
         }
@@ -205,7 +218,7 @@ namespace DiscordNet
 
         private Task LogAsync(LogMessage log)
         {
-            Console.WriteLine(log.ToString());
+            Log.Write(log.ToString());
             return Task.CompletedTask;
         }
 
@@ -221,10 +234,10 @@ namespace DiscordNet
             bool isOwner = BotUser.Default.OwnerID == message.Author.Id;
 
             if (message.Channel is ITextChannel)
-                _log.Write(
+                Log.Write(
                     $"{message.Channel}/{message.Author.Username}#{message.Author.Discriminator} : {message.Content}");
             else
-                _log.DmWrite($"DM/{message.Author.Username}#{message.Author.Discriminator} : {message.Content}");
+                Log.DmWrite($"DM/{message.Author.Username}#{message.Author.Discriminator} : {message.Content}");
 
             if (message.Author.Id == 288351323940847616 && message.Content.ToLower().Contains("school") &&
                 message.Content.ToLower().Contains("boring"))
@@ -232,14 +245,14 @@ namespace DiscordNet
 
             if (message.MentionedUsers.Count != 0)
             {
-                _log.Write("Users mentioned");
+                Log.Write("Users mentioned");
 
                 foreach (SocketUser user in message.MentionedUsers)
                     await user.SendMessageAsync(
                         $"You got mentioned by {message.Author.Username}#{message.Author.Discriminator} in {message.Channel.Name}");
             }
 
-            if (!botPaused && message.Content.StartsWith(Prefix) || message.Channel is IDMChannel)
+            if (!_botPaused && message.Content.StartsWith(Prefix) || (message.Channel is IDMChannel && !_botPaused))
             {
                 string[] messageStrings = message.Content.Split(' ');
 
@@ -260,14 +273,14 @@ namespace DiscordNet
                         await commands.Shutdown(message, isOwner);
                         break;
                     case "info":
-                        await commands.Info(instanceId.Id(), message, botPaused);
+                        await commands.Info(instanceId.Id(), message, _botPaused);
                         break;
                     case "pause":
-                        botPaused = await commands.Pause(messageStrings[1], instanceId, isOwner, message);
+                        _botPaused = await commands.Pause(messageStrings[1], instanceId, isOwner, message);
                         break;
                 }
             }
-            else if (botPaused)
+            else if (_botPaused)
             {
                 string[] messageStrings = message.Content.Split(' ');
                 if (message.Channel is ITextChannel) messageStrings[0] = messageStrings[0].Remove(0, Prefix.Length);
@@ -275,10 +288,13 @@ namespace DiscordNet
                 switch (messageStrings[0].ToLower())
                 {
                     case "continue":
-                        botPaused = await commands.Continue(messageStrings[1], instanceId, isOwner, message);
+                        _botPaused = await commands.Continue(messageStrings[1], instanceId, isOwner, message);
                         break;
                     case "info":
-                        await commands.Info(instanceId.Id(), message, botPaused);
+                        if (message.Channel is IDMChannel)
+                        {
+                            await commands.Info(instanceId.Id(), message, _botPaused);
+                        }
                         break;
                 }
             }
