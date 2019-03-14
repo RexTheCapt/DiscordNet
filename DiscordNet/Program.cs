@@ -249,6 +249,8 @@ namespace DiscordNet
 
                 switch (messageStrings[0].ToLower())
                 {
+                    #region Pings
+
                     case "ping":
                         await message.Channel.SendMessageAsync("Pong!");
                         break;
@@ -258,6 +260,8 @@ namespace DiscordNet
                     case "mia":
                         await message.Channel.SendMessageAsync("Maria!");
                         break;
+
+                    #endregion
                     case "prefix":
                         Prefix = await commands.Prefix(messageStrings, message, Prefix);
                         break;
