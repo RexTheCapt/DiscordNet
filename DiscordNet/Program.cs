@@ -211,9 +211,11 @@ namespace DiscordNet
 
             bool isOwner = BotUser.Default.OwnerID == message.Author.Id;
 
+            SocketGuildChannel guildChannel = message.Channel as SocketGuildChannel;
+
             if (message.Channel is ITextChannel)
                 Log.Write(
-                    $"{message.Channel}/{message.Author.Username}#{message.Author.Discriminator} : {message.Content}");
+                    $"{guildChannel.Guild.Name}/{message.Channel}/{message.Author.Username}#{message.Author.Discriminator} : {message.Content}");
             else
                 Log.DmWrite($"DM/{message.Author.Username}#{message.Author.Discriminator} : {message.Content}");
 
@@ -223,8 +225,6 @@ namespace DiscordNet
 
             if (message.MentionedUsers.Count != 0)
             {
-                SocketGuildChannel guildChannel = message.Channel as SocketGuildChannel;
-
                 Log.Write("Users mentioned");
 
                 foreach (SocketUser user in message.MentionedUsers)
