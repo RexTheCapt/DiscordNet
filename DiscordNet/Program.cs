@@ -12,28 +12,6 @@ using Discord.WebSocket;
 
 namespace DiscordNet
 {
-    public class InstanceId
-    {
-        private int _id;
-
-        public InstanceId()
-        {
-            NewId();
-        }
-
-        public string NewId()
-        {
-            Random rdm = new Random();
-            _id = rdm.Next(int.MinValue, int.MaxValue);
-            return Id();
-        }
-
-        public string Id()
-        {
-            return _id.ToString("x8");
-        }
-    }
-
     internal class Program
     {
         private readonly DiscordSocketClient _client;

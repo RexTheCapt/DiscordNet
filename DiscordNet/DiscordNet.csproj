@@ -246,6 +246,7 @@
       <DependentUpon>BotUser.settings</DependentUpon>
     </Compile>
     <Compile Include="Commands.cs" />
+    <Compile Include="InstanceId.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
