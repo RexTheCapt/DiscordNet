@@ -250,7 +250,11 @@ namespace DiscordNet
                 Log.Write("Users mentioned");
 
                 foreach (SocketUser user in message.MentionedUsers)
-                    await user.SendMessageAsync($"You got mentioned by {(guildChannel == null ? "DM" : $"{guildChannel.Guild.Name}")}\\{message.Channel.Name}\\{message.Author}");
+                    await user.SendMessageAsync($"You got mentioned by {(guildChannel == null ? "DM" : $"{guildChannel.Guild.Name}")}\\{message.Channel.Name}\\{message.Author}\n" +
+                                                $"```\n" +
+                                                $"{message.Content}\n" +
+                                                $"```\n" +
+                                                $"https://discordapp.com/channels/{(guildChannel == null ? "@me" : guildChannel.Guild.Id.ToString())}/{message.Channel.Id}{(guildChannel == null ? "/" : "?jump=")}{message.Id}");
             }
 
             if (!_botPaused && message.Content.StartsWith(Prefix) || (message.Channel is IDMChannel && !_botPaused))
