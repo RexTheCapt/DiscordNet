@@ -42,7 +42,7 @@ namespace DiscordNet
 
         private bool _botPaused;
 
-        private DateTime startDateTime = DateTime.Now;
+        private readonly DateTime _startDateTime = DateTime.Now;
 
         #region Startup functions
 
@@ -274,7 +274,7 @@ namespace DiscordNet
                         await commands.Shutdown(message, isOwner);
                         break;
                     case "info":
-                        await commands.Info(instanceId.Id(), message, _botPaused, _client, startDateTime);
+                        await commands.Info(instanceId.Id(), message, _botPaused, _client, _startDateTime);
                         break;
                     case "pause":
                         _botPaused = await commands.Pause(messageStrings[1], instanceId, isOwner, message);
@@ -297,7 +297,7 @@ namespace DiscordNet
                     case "info":
                         if (message.Channel is IDMChannel)
                         {
-                            await commands.Info(instanceId.Id(), message, _botPaused, _client, startDateTime);
+                            await commands.Info(instanceId.Id(), message, _botPaused, _client, _startDateTime);
                         }
                         break;
                 }
