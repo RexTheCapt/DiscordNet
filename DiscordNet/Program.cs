@@ -37,14 +37,31 @@ namespace DiscordNet
             if (message == null)
                 return;
 
+            #region Log messages
+
+            SocketGuildChannel guildChannel = message.Channel as SocketGuildChannel;
+
+            if (message.Channel is ITextChannel)
+            {
+                Log.Write($"{(guildChannel == null ? "-[ERROR]-" : guildChannel.Guild.Name)}/{message.Channel}/{message.Author}");
+                Log.Write($"{message.Content}", false);
+            }
+            else
+            {
+                Log.DmWrite($"DM/{message.Author}");
+                Log.DmWrite($"{message.Content}", false);
+            }
+
+            #endregion
+
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
 
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
-            if (!(channel is IDMChannel) &&
-                (!(message.HasStringPrefix(BotInfo.Version, ref argPos) ||
-                   message.HasMentionPrefix(_client.CurrentUser, ref argPos)) || message.Author.IsBot))
-                return;
+            if (!(messageParam.Channel is IDMChannel))
+                if ((!(message.HasStringPrefix(BotInfo.Version, ref argPos) ||
+                       message.HasMentionPrefix(_client.CurrentUser, ref argPos)) || message.Author.IsBot))
+                    return;
 
             // Create a WebSocket-based command context based on the message
             SocketCommandContext context = new SocketCommandContext(_client, message);
