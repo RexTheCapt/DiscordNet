@@ -59,7 +59,7 @@ namespace DiscordNet
 
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
             if (!(messageParam.Channel is IDMChannel))
-                if ((!(message.HasStringPrefix(BotInfo.Version, ref argPos) ||
+                if ((!(message.HasStringPrefix(BotInfo.Prefix, ref argPos) ||
                        message.HasMentionPrefix(_client.CurrentUser, ref argPos)) || message.Author.IsBot))
                     return;
 
