@@ -11,5 +11,23 @@ namespace DiscordNet.CommandModules
         {
             await ReplyAsync("Pong!");
         }
+
+        [Command("marco")]
+        public async Task Marco()
+        {
+            await ReplyAsync("Polo!");
+        }
+
+        [Command("mia")]
+        public async Task Mia()
+        {
+            await ReplyAsync("Maria!");
+        }
+
+        [Command("maria")]
+        public async Task Maria()
+        {
+            await ReplyAsync("Mia!");
+        }
     }
 }

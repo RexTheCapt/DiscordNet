@@ -246,8 +246,11 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>BotUser.settings</DependentUpon>
     </Compile>
+    <Compile Include="CommandModules\GetServersModule.cs" />
+    <Compile Include="CommandModules\GetUserModule.cs" />
     <Compile Include="CommandModules\HelpModule.cs" />
     <Compile Include="CommandModules\InfoModule.cs" />
+    <Compile Include="CommandModules\PausePlayModule.cs" />
     <Compile Include="CommandModules\Ping.cs" />
     <Compile Include="CommandModules\Prefix.cs" />
     <Compile Include="InstanceId.cs" />

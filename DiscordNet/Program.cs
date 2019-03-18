@@ -31,6 +31,16 @@ namespace DiscordNet
         // reading over the Commands Framework sample.
         private async Task HandleCommandAsync(SocketMessage messageParam)
         {
+            /* TODO:
+             * Add commands:
+             *  get-user
+             *  shutdown
+             *  pause
+             *  play
+             *  get-servers
+             *
+             */
+
             // Don't process the command if it was a system message
             SocketUserMessage message = messageParam as SocketUserMessage;
             ISocketMessageChannel channel = messageParam.Channel;
