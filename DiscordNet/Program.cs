@@ -17,24 +17,7 @@ namespace DiscordNet
     {
         private readonly DiscordSocketClient _client;
 
-        private static string Version
-        {
-            get
-            {
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-                string version = fvi.FileVersion;
-                return version;
-            }
-        }
-
-        private static string Prefix
-        {
-            get => BotUser.Default.Prefix;
-        }
         private static string Token => $"{BotUser.Default.Token}";
-
-        private readonly InstanceId _instanceId = new InstanceId();
 
         private CommandService _commands;
 
@@ -56,7 +39,7 @@ namespace DiscordNet
         {
             Console.Title = "Discord Bot";
 
-            Log.Info($"Version: {Version}");
+            Log.Info($"Version: {BotInfo.Version}");
 
             bool hasToken = false;
 
@@ -138,7 +121,7 @@ namespace DiscordNet
             await _client.LoginAsync(TokenType.Bot, Token, false);
             await _client.StartAsync();
             
-            Log.Info($"Instance ID: {_instanceId.Id()}");
+            Log.Info($"Instance ID: {BotInfo.InstanceId}");
 
             #region Set Owner ID
 
@@ -215,7 +198,7 @@ namespace DiscordNet
 
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
             if (!(channel is IDMChannel) &&
-                (!(message.HasStringPrefix(Prefix, ref argPos) ||
+                (!(message.HasStringPrefix(BotInfo.Version, ref argPos) ||
                    message.HasMentionPrefix(_client.CurrentUser, ref argPos)) || message.Author.IsBot))
             return;
 

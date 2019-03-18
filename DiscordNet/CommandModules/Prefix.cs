@@ -12,6 +12,7 @@ namespace DiscordNet.CommandModules
         private string _prefix
         {
             get => BotUser.Default.Prefix;
+            // ReSharper disable once UnusedMember.Local
             set
             {
                 BotUser.Default.Prefix = value;
