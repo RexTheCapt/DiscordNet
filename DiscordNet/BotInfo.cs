@@ -1,10 +1,19 @@
-﻿using System.Diagnostics;
+﻿#region usings
+
+using System;
+using System.Diagnostics;
 using System.Reflection;
+
+#endregion
 
 namespace DiscordNet
 {
     public static class BotInfo
     {
+        public static readonly InstanceId InstanceId = new InstanceId();
+
+        public static DateTime StartDateTime = DateTime.Now;
+
         public static string Prefix
         {
             get => BotUser.Default.Prefix;
@@ -14,8 +23,6 @@ namespace DiscordNet
                 BotUser.Default.Save();
             }
         }
-
-        public static readonly InstanceId InstanceId = new InstanceId();
 
         public static string Version
         {

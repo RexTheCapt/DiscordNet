@@ -247,6 +247,7 @@
       <DependentUpon>BotUser.settings</DependentUpon>
     </Compile>
     <Compile Include="CommandModules\HelpModule.cs" />
+    <Compile Include="CommandModules\InfoModule.cs" />
     <Compile Include="CommandModules\Ping.cs" />
     <Compile Include="CommandModules\Prefix.cs" />
     <Compile Include="InstanceId.cs" />
