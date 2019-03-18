@@ -231,7 +231,7 @@ namespace DiscordNet
                 message.Content.ToLower().Contains("boring"))
                 await message.Channel.SendMessageAsync($"Stop complaining {message.Author.Mention}.");
 
-            if (message.MentionedUsers.Count != 0)
+            /*if (message.MentionedUsers.Count != 0)
             {
                 Log.Write("Users mentioned");
 
@@ -241,7 +241,7 @@ namespace DiscordNet
                                                 $"{message.Content}\n" +
                                                 $"```\n" +
                                                 $"https://discordapp.com/channels/{(guildChannel == null ? "@me" : guildChannel.Guild.Id.ToString())}/{message.Channel.Id}{(guildChannel == null ? "/" : "?jump=")}{message.Id}");
-            }
+            }*/
 
             if (!_botPaused && message.Content.StartsWith(Prefix) || (message.Channel is IDMChannel && !_botPaused))
             {
