@@ -245,7 +245,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>BotUser.settings</DependentUpon>
     </Compile>
-    <Compile Include="Commands.cs" />
+    <Compile Include="CommandModules\HelpModule.cs" />
+    <Compile Include="CommandModules\Ping.cs" />
+    <Compile Include="CommandModules\Prefix.cs" />
     <Compile Include="InstanceId.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Program.cs" />

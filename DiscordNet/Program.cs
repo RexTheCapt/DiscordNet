@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 
 #endregion
@@ -30,19 +31,12 @@ namespace DiscordNet
         private static string Prefix
         {
             get => BotUser.Default.Prefix;
-            set
-            {
-                BotUser.Default.Prefix = value;
-                BotUser.Default.Save();
-            }
         }
         private static string Token => $"{BotUser.Default.Token}";
 
         private readonly InstanceId _instanceId = new InstanceId();
 
-        private bool _botPaused;
-
-        private readonly DateTime _startDateTime = DateTime.Now;
+        private CommandService _commands;
 
         #region Startup functions
 
@@ -54,7 +48,7 @@ namespace DiscordNet
 
             _client.Log += LogAsync;
             _client.Ready += ReadyAsync;
-            _client.MessageReceived += MessageReceivedAsync;
+            _client.MessageReceived += HandleCommandAsync;
         }
         // Discord.Net heavily utilizes TAP for async, so we create
         // an asynchronous context from the beginning.
@@ -184,6 +178,10 @@ namespace DiscordNet
 
             #endregion
 
+            _commands = new CommandService();
+
+            await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(), services: null);
+
             // Block the program until it is closed.
             await Task.Delay(-1);
         }
@@ -204,104 +202,29 @@ namespace DiscordNet
 
         // This is not the recommended way to write a bot - consider
         // reading over the Commands Framework sample.
-        private async Task MessageReceivedAsync(SocketMessage message)
+        private async Task HandleCommandAsync(SocketMessage messageParam)
         {
-            Commands commands = new Commands();
-
-            if (message.Author.Id == _client.CurrentUser.Id)
+            // Don't process the command if it was a system message
+            SocketUserMessage message = messageParam as SocketUserMessage;
+            var channel = messageParam.Channel;
+            if (message == null)
                 return;
 
-            bool isOwner = BotUser.Default.OwnerID == message.Author.Id;
+            // Create a number to track where the prefix ends and the command begins
+            int argPos = 0;
 
-            SocketGuildChannel guildChannel = message.Channel as SocketGuildChannel;
+            // Determine if the message is a command based on the prefix and make sure no bots trigger commands
+            if (!(channel is IDMChannel) &&
+                (!(message.HasStringPrefix(Prefix, ref argPos) ||
+                   message.HasMentionPrefix(_client.CurrentUser, ref argPos)) || message.Author.IsBot))
+            return;
 
-            if (message.Channel is ITextChannel)
-            {
-                Log.Write(
-                    $"{(guildChannel == null ? "-[ERROR]-" : guildChannel.Guild.Name)}/{message.Channel}/{message.Author.Username}#{message.Author.Discriminator}");
-                Log.Write($"{message.Content}", false);
-            }
-            else
-            {
-                Log.DmWrite($"DM/{message.Author.Username}#{message.Author.Discriminator}");
-                Log.DmWrite($"{message.Content}", false);
-            }
+            // Create a WebSocket-based command context based on the message
+            SocketCommandContext context = new SocketCommandContext(_client, message);
 
-            if (message.Author.Id == 288351323940847616 && message.Content.ToLower().Contains("school") &&
-                message.Content.ToLower().Contains("boring"))
-                await message.Channel.SendMessageAsync($"Stop complaining {message.Author.Mention}.");
-
-            if (message.MentionedUsers.Count != 0)
-            {
-                Log.Write("Users mentioned");
-
-                foreach (SocketUser user in message.MentionedUsers)
-                    await user.SendMessageAsync($"You got mentioned by {(guildChannel == null ? "DM" : $"{guildChannel.Guild.Name}")}\\{message.Channel.Name}\\{message.Author}\n" +
-                                                $"```\n" +
-                                                $"{message.Content}\n" +
-                                                $"```\n" +
-                                                $"https://discordapp.com/channels/{(guildChannel == null ? "@me" : guildChannel.Guild.Id.ToString())}/{message.Channel.Id}{(guildChannel == null ? "/" : "?jump=")}{message.Id}");
-            }
-
-            if (!_botPaused && message.Content.StartsWith(Prefix) || (message.Channel is IDMChannel && !_botPaused))
-            {
-                string[] messageStrings = message.Content.Split(' ');
-
-                if (message.Channel is ITextChannel) messageStrings[0] = messageStrings[0].Remove(0, Prefix.Length);
-
-                switch (messageStrings[0].ToLower())
-                {
-                    #region Pings
-
-                    case "ping":
-                        await message.Channel.SendMessageAsync("Pong!");
-                        break;
-                    case "marco":
-                        await message.Channel.SendMessageAsync("Polo!");
-                        break;
-                    case "mia":
-                        await message.Channel.SendMessageAsync("Maria!");
-                        break;
-
-                    #endregion
-                    case "prefix":
-                        Prefix = await commands.Prefix(messageStrings, message, Prefix);
-                        break;
-                    case "get-user":
-                        commands.GetUser(messageStrings, _client, message);
-                        break;
-                    case "shutdown":
-                        await commands.Shutdown(message, isOwner);
-                        break;
-                    case "info":
-                        await commands.Info(_instanceId.Id(), message, _botPaused, _client, _startDateTime);
-                        break;
-                    case "pause":
-                        _botPaused = await commands.Pause(messageStrings[1], _instanceId, isOwner, message);
-                        break;
-                    case "get-servers":
-                        await commands.GetServers(_client, message);
-                        break;
-                }
-            }
-            else if (_botPaused)
-            {
-                string[] messageStrings = message.Content.Split(' ');
-                if (message.Channel is ITextChannel) messageStrings[0] = messageStrings[0].Remove(0, Prefix.Length);
-
-                switch (messageStrings[0].ToLower())
-                {
-                    case "continue":
-                        _botPaused = await commands.Continue(messageStrings[1], _instanceId, isOwner, message);
-                        break;
-                    case "info":
-                        if (message.Channel is IDMChannel)
-                        {
-                            await commands.Info(_instanceId.Id(), message, _botPaused, _client, _startDateTime);
-                        }
-                        break;
-                }
-            }
+            // Execute the command with the command context we just
+            // created, along with the service provider for precondition checks.
+            await _commands.ExecuteAsync(context: context, argPos: argPos, services: null);
         }
     }
 }
