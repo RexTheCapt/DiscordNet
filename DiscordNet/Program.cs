@@ -157,7 +157,8 @@ namespace DiscordNet
             await _client.LoginAsync(TokenType.Bot, Token, false);
             await _client.StartAsync();
 
-            Log.Info($"Instance ID: {BotInfo.InstanceId}");
+            Log.Info($"Instance ID: {BotInfo.InstanceId.Id()}");
+            Log.Info($"Prefix: {BotInfo.Prefix}");
 
             #region Set Owner ID
 
