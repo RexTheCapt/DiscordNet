@@ -11,6 +11,12 @@ using Discord.Commands;
 
 namespace DiscordNet.CommandModules
 {
+    /* TODO: REWRITE THIS ENTIRE MODULE.
+     * DISCLAIMER:
+     * MODULE CODE IS NOT ORIGINAL
+     * COPIED FROM https://gist.github.com/foxbot/7a880c6267cda18dc1ab6587ab7ffbb2
+     */
+
     public class HelpModule : ModuleBase
     {
         private readonly CommandService _commands;
