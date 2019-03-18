@@ -27,7 +27,7 @@ namespace DiscordNet
             }
         }
 
-        private string Prefix
+        private static string Prefix
         {
             get => BotUser.Default.Prefix;
             set
@@ -36,9 +36,9 @@ namespace DiscordNet
                 BotUser.Default.Save();
             }
         }
-        private string Token => $"{BotUser.Default.Token}";
-        
-        InstanceId instanceId = new InstanceId();
+        private static string Token => $"{BotUser.Default.Token}";
+
+        private readonly InstanceId _instanceId = new InstanceId();
 
         private bool _botPaused;
 
@@ -46,7 +46,7 @@ namespace DiscordNet
 
         #region Startup functions
 
-        public Program()
+        private Program()
         {
             // It is recommended to Dispose of a client when you are finished
             // using it, at the end of your app's lifetime.
@@ -144,7 +144,7 @@ namespace DiscordNet
             await _client.LoginAsync(TokenType.Bot, Token, false);
             await _client.StartAsync();
             
-            Log.Info($"Instance ID: {instanceId.Id()}");
+            Log.Info($"Instance ID: {_instanceId.Id()}");
 
             #region Set Owner ID
 
@@ -196,7 +196,7 @@ namespace DiscordNet
 
         #endregion
 
-        private Task LogAsync(LogMessage log)
+        private static Task LogAsync(LogMessage log)
         {
             Log.Write(log.ToString());
             return Task.CompletedTask;
@@ -274,10 +274,10 @@ namespace DiscordNet
                         await commands.Shutdown(message, isOwner);
                         break;
                     case "info":
-                        await commands.Info(instanceId.Id(), message, _botPaused, _client, _startDateTime);
+                        await commands.Info(_instanceId.Id(), message, _botPaused, _client, _startDateTime);
                         break;
                     case "pause":
-                        _botPaused = await commands.Pause(messageStrings[1], instanceId, isOwner, message);
+                        _botPaused = await commands.Pause(messageStrings[1], _instanceId, isOwner, message);
                         break;
                     case "get-servers":
                         await commands.GetServers(_client, message);
@@ -292,12 +292,12 @@ namespace DiscordNet
                 switch (messageStrings[0].ToLower())
                 {
                     case "continue":
-                        _botPaused = await commands.Continue(messageStrings[1], instanceId, isOwner, message);
+                        _botPaused = await commands.Continue(messageStrings[1], _instanceId, isOwner, message);
                         break;
                     case "info":
                         if (message.Channel is IDMChannel)
                         {
-                            await commands.Info(instanceId.Id(), message, _botPaused, _client, _startDateTime);
+                            await commands.Info(_instanceId.Id(), message, _botPaused, _client, _startDateTime);
                         }
                         break;
                 }
