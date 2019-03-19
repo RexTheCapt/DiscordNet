@@ -31,20 +31,10 @@ namespace DiscordNet
         // reading over the Commands Framework sample.
         private async Task HandleCommandAsync(SocketMessage messageParam)
         {
-            /* TODO:
-             * Add commands:
-             *  get-user
-             *  shutdown
-             *  pause
-             *  play
-             *  get-servers
-             *
-             */
-
             // Don't process the command if it was a system message
             SocketUserMessage message = messageParam as SocketUserMessage;
-            ISocketMessageChannel channel = messageParam.Channel;
-            if (message == null)
+
+            if (!(messageParam is SocketUserMessage))
                 return;
 
             #region Log messages
@@ -64,21 +54,38 @@ namespace DiscordNet
 
             #endregion
 
-            // Create a number to track where the prefix ends and the command begins
-            int argPos = 0;
+            if (!BotInfo.BotIsPaused || IsAnAllowedByPassCommand(message.Content))
+            {
+                // Create a number to track where the prefix ends and the command begins
+                int argPos = 0;
 
-            // Determine if the message is a command based on the prefix and make sure no bots trigger commands
-            if (!(messageParam.Channel is IDMChannel))
-                if ((!(message.HasStringPrefix(BotInfo.Prefix, ref argPos) ||
-                       message.HasMentionPrefix(_client.CurrentUser, ref argPos)) || message.Author.IsBot))
-                    return;
+                // Determine if the message is a command based on the prefix and make sure no bots trigger commands
+                if (!(messageParam.Channel is IDMChannel))
+                    if ((!(message.HasStringPrefix(BotInfo.Prefix, ref argPos) ||
+                           message.HasMentionPrefix(_client.CurrentUser, ref argPos)) || message.Author.IsBot))
+                        return;
 
-            // Create a WebSocket-based command context based on the message
-            SocketCommandContext context = new SocketCommandContext(_client, message);
+                // Create a WebSocket-based command context based on the message
+                SocketCommandContext context = new SocketCommandContext(_client, message);
 
-            // Execute the command with the command context we just
-            // created, along with the service provider for precondition checks.
-            await _commands.ExecuteAsync(context, argPos, null);
+                // Execute the command with the command context we just
+                // created, along with the service provider for precondition checks.
+                await _commands.ExecuteAsync(context, argPos, null);
+            }
+        }
+
+        private static bool IsAnAllowedByPassCommand(string messageContent)
+        {
+            string s = messageContent;
+            string[] commands = {"continue", "info"};
+
+            foreach (string command in commands)
+            {
+                if (messageContent.StartsWith($"{BotInfo.Prefix}{command}"))
+                    return true;
+            }
+
+            return false;
         }
 
         #region Startup functions

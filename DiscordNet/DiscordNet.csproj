@@ -253,6 +253,7 @@
     <Compile Include="CommandModules\PausePlayModule.cs" />
     <Compile Include="CommandModules\Ping.cs" />
     <Compile Include="CommandModules\Prefix.cs" />
+    <Compile Include="CommandModules\ShutdownModule.cs" />
     <Compile Include="InstanceId.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Program.cs" />

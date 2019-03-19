@@ -34,5 +34,7 @@ namespace DiscordNet
                 return version;
             }
         }
+
+        public static bool BotIsPaused = false;
     }
 }

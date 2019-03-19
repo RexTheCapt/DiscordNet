@@ -21,6 +21,7 @@ namespace DiscordNet.CommandModules
         }
 
         [Command("prefix")]
+        [Summary("Get the current prefix... you already know it...")]
         public async Task Prefix()
         {
             await ReplyAsync($"Current: ``{_prefix}``");
@@ -41,16 +42,23 @@ namespace DiscordNet.CommandModules
         }
 
         [Command("set")]
+        [Summary("Change the prefix (limited command)")]
         public async Task SetPrefix(string newPrefix)
         {
-            if (string.IsNullOrEmpty(newPrefix.Trim()))
+            if (Context.Message.Author.Id == BotUser.Default.OwnerID)
             {
-                await ReplyAsync($"Please input a prefix");
+                if (string.IsNullOrEmpty(newPrefix.Trim()))
+                {
+                    await ReplyAsync($"Please input a prefix");
+                    return;
+                }
+
+                _prefix = newPrefix;
+                await ReplyAsync($"New prefix: ``{_prefix}``");
                 return;
             }
 
-            _prefix = newPrefix;
-            await ReplyAsync($"New prefix: ``{_prefix}``");
+            await ReplyAsync($"Sorry {Context.Message.Author.Username}, your soul is too puny.");
         }
     }
 }

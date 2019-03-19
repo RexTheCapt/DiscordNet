@@ -11,10 +11,9 @@ using Discord.Commands;
 
 namespace DiscordNet.CommandModules
 {
-    /* TODO: REWRITE THIS ENTIRE MODULE.
-     * DISCLAIMER:
-     * MODULE CODE IS NOT ORIGINAL
-     * COPIED FROM https://gist.github.com/foxbot/7a880c6267cda18dc1ab6587ab7ffbb2
+    /* DISCLAIMER:
+     * This code has been taken from foxbot on github
+     * https://gist.github.com/foxbot/7a880c6267cda18dc1ab6587ab7ffbb2
      */
 
     public class HelpModule : ModuleBase
@@ -33,6 +32,7 @@ namespace DiscordNet.CommandModules
         public async Task Help(string path = "")
         {
             EmbedBuilder output = new EmbedBuilder();
+
             if (path == "")
             {
                 output.Title = "my bot - help";
@@ -66,12 +66,13 @@ namespace DiscordNet.CommandModules
             await ReplyAsync("", embed: output.Build());
         }
 
-        public void AddHelp(ModuleInfo module, ref EmbedBuilder builder)
+        private void AddHelp(ModuleInfo module, ref EmbedBuilder builder)
         {
             foreach (ModuleInfo sub in module.Submodules) AddHelp(sub, ref builder);
+
             builder.AddField(f =>
             {
-                f.Name = $"**{module}**";
+                f.Name = $"**{module.Name}**";
                 f.Value = $"Submodules: {string.Join(", ", module.Submodules.Select(m => m))}" +
                           "\n" +
                           $"Commands: {string.Join(", ", module.Commands.Select(x => $"`{x.Name}`"))}";

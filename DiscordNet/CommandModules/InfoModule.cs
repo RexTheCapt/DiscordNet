@@ -13,6 +13,7 @@ namespace DiscordNet.CommandModules
     public class InfoModule : ModuleBase<SocketCommandContext>
     {
         [Command("info")]
+        [Summary("Get some information about this bot.")]
         public async Task Info()
         {
             IReadOnlyCollection<SocketGuild> guilds = Context.User.MutualGuilds;
@@ -35,7 +36,7 @@ namespace DiscordNet.CommandModules
             await ReplyAsync("Bot info:\n" +
                              "```MARKUP\n" +
                              $"Version: {BotInfo.Version}\n" +
-                             $"Instance ID: {BotInfo.InstanceId.Id()}\n" +
+                             $"Instance ID: {BotInfo.InstanceId.Id()}{(BotInfo.BotIsPaused ? " (paused)" : "")}\n" +
                              $"Owner: {(owner == null ? "[NONE]#****" : $"{owner}")}\n" +
                              $"Start: {BotInfo.StartDateTime.ToLongDateString()} {BotInfo.StartDateTime.ToLongTimeString()}\n" +
                              $"Online for: {timeActive.Hours:00}:{timeActive.Minutes:00}:{timeActive.Seconds:00}.{timeActive.Milliseconds:000}\n" +
