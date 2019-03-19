@@ -6,7 +6,7 @@ using System;
 
 namespace DiscordNet
 {
-    internal class InstanceId
+    public class InstanceId
     {
         private int _id;
 
