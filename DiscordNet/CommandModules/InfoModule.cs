@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
@@ -19,6 +20,7 @@ namespace DiscordNet.CommandModules
             IReadOnlyCollection<SocketGuild> guilds = Context.User.MutualGuilds;
             SocketGuildUser owner = null;
             TimeSpan timeActive = DateTime.Now - BotInfo.StartDateTime;
+            EmbedBuilder embedBuilder = new EmbedBuilder().WithTitle("Bot Info");
 
             foreach (SocketGuild socketGuild in guilds)
             {
@@ -33,14 +35,17 @@ namespace DiscordNet.CommandModules
                     break;
             }
 
-            await ReplyAsync("Bot info:\n" +
-                             "```MARKUP\n" +
-                             $"Version: {BotInfo.Version}\n" +
-                             $"Instance ID: {BotInfo.InstanceId.Id()}{(BotInfo.BotIsPaused ? " (paused)" : "")}\n" +
-                             $"Owner: {(owner == null ? "[NONE]#****" : $"{owner}")}\n" +
-                             $"Start: {BotInfo.StartDateTime.ToLongDateString()} {BotInfo.StartDateTime.ToLongTimeString()}\n" +
-                             $"Online for: {timeActive.Hours:00}:{timeActive.Minutes:00}:{timeActive.Seconds:00}.{timeActive.Milliseconds:000}\n" +
-                             "```");
+            embedBuilder.WithColor(1f, 0f, 0f);
+
+            embedBuilder.AddField("Version", $"{BotInfo.Version}")
+                .AddField("Instance ID", $"{BotInfo.InstanceId.Id()}{(BotInfo.BotIsPaused ? " (paused)" : "")}")
+                .AddField("Owner", $"{(owner == null ? "[NONE]#****" : $"{owner}")}")
+                .AddField("Start time",
+                    $"{BotInfo.StartDateTime.ToLongDateString()} {BotInfo.StartDateTime.ToLongTimeString()}")
+                .AddField("Active Time",
+                    $"{timeActive.Hours:00}:{timeActive.Minutes:00}:{timeActive.Seconds:00}.{timeActive.Milliseconds:000}");
+
+            await ReplyAsync(embed: embedBuilder.Build());
         }
     }
 }
