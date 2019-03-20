@@ -31,7 +31,8 @@ namespace DiscordNet.CommandModules
         [Summary("Lists this bots commands.")]
         public async Task Help(string path = "")
         {
-            EmbedBuilder output = new EmbedBuilder();
+            Random rdm = new Random();
+            EmbedBuilder output = new EmbedBuilder().WithColor(rdm.Next(0, 256), rdm.Next(0, 256), rdm.Next(0, 256));
 
             if (path == "")
             {
