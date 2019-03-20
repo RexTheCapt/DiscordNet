@@ -3,7 +3,7 @@ using Discord.Commands;
 
 namespace DiscordNet.CommandModules
 {
-    public class Ping : ModuleBase<SocketCommandContext>
+    public class PingModule : ModuleBase<SocketCommandContext>
     {
         [Command("ping")]
         [Summary("Check if the bot is responding.")]
