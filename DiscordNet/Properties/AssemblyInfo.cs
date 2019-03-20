@@ -35,5 +35,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.27.7018.18364")]
-[assembly: AssemblyFileVersion("2.27.7018.18364")]
+[assembly: AssemblyVersion("2.30.7018.18865")]
+[assembly: AssemblyFileVersion("2.30.7018.18865")]
