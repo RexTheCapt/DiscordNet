@@ -76,7 +76,6 @@ namespace DiscordNet
 
         private static bool IsAnAllowedByPassCommand(string messageContent)
         {
-            string s = messageContent;
             string[] commands = {"continue", "info"};
 
             foreach (string command in commands)
