@@ -249,6 +249,7 @@
     <Compile Include="CommandModules\GetServersModule.cs" />
     <Compile Include="CommandModules\GetUserModule.cs" />
     <Compile Include="CommandModules\HelpModule.cs" />
+    <Compile Include="CommandModules\ImitateModule.cs" />
     <Compile Include="CommandModules\InfoModule.cs" />
     <Compile Include="CommandModules\PausePlayModule.cs" />
     <Compile Include="CommandModules\PingModule.cs" />
