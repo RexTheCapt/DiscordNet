@@ -43,7 +43,7 @@ namespace DiscordNet.CommandModules
                 .AddField("Start time",
                     $"{BotInfo.StartDateTime.ToLongDateString()} {BotInfo.StartDateTime.ToLongTimeString()}")
                 .AddField("Active Time",
-                    $"{timeActive.Hours:00}:{timeActive.Minutes:00}:{timeActive.Seconds:00}.{timeActive.Milliseconds:000}");
+                    $"{timeActive.TotalDays:00}:{timeActive.Hours:00}:{timeActive.Minutes:00}:{timeActive.Seconds:00}.{timeActive.Milliseconds:000}");
 
             await ReplyAsync(embed: embedBuilder.Build());
         }
