@@ -1,18 +1,14 @@
-﻿#region usings
-
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
-
-#endregion
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DiscordNet")]
+[assembly: AssemblyTitle("StreamBot")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("DiscordNet")]
+[assembly: AssemblyProduct("StreamBot")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -23,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("bdee85d8-215d-4ac5-ba0b-e8cb7f434767")]
+[assembly: Guid("478bbaac-0e66-4ce9-a3c8-572ed3544e16")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -35,5 +31,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.36.7041.13125")]
-[assembly: AssemblyFileVersion("2.36.7041.13125")]
+[assembly: AssemblyVersion("1.35.7041.17694")]
+[assembly: AssemblyFileVersion("1.35.7041.17694")]
