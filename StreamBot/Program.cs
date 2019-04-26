@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -94,8 +93,6 @@ namespace StreamBot
 
         #region Startup functions
 
-        private Timer timer;
-
         private Program()
         {
             // It is recommended to Dispose of a client when you are finished
@@ -107,44 +104,46 @@ namespace StreamBot
             _client.MessageReceived += HandleCommandAsync;
             _client.UserVoiceStateUpdated += _client_UserVoiceStateUpdated;
 
-            timer = new Timer(1000);
+            Timer timer = new Timer(1000);
             timer.Elapsed += Timer_Elapsed;
             timer.AutoReset = true;
             timer.Enabled = true;
         }
 
-        private SocketUser guestInActive;
-        private DateTime guestInActiveDateTime = DateTime.Now;
+        private SocketUser _guestInActive;
+        private DateTime _guestInActiveDateTime = DateTime.Now;
         private int activeChatTimeMax = 10;
+
         private async void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (WaitingVoiceChannel != null && ActiveVoiceChannel != null && userVoiceInfos.Count != 0)
-            {
-                if (userVoiceInfos[0].ConnectedDateTime.AddSeconds(activeChatTimeMax) <= DateTime.Now && guestInActiveDateTime.AddSeconds(activeChatTimeMax) <= DateTime.Now)
-                {
-                    if (guestInActive != null)
-                    {
-                        // ReSharper disable once PossibleNullReferenceException
-                        await (guestInActive as IGuildUser)?.ModifyAsync(x => x.Channel = WaitingVoiceChannel);
-                        userVoiceInfo u = new userVoiceInfo();
-                        u.Set(guestInActive, WaitingVoiceChannel, DateTime.Now);
-                        userVoiceInfos.Add(u);
-                        guestInActive = null;
-                    }
+            if (_waitingVoiceChannel == null || _activeVoiceChannel == null || userVoiceInfos.Count == 0) return;
 
-                    guestInActive = userVoiceInfos[0].User;
-                    await (userVoiceInfos[0].User as IGuildUser)?.ModifyAsync(x => x.Channel = ActiveVoiceChannel);
-                    guestInActiveDateTime = DateTime.Now;
-                    userVoiceInfos.RemoveAt(0);
-                }
+            if (userVoiceInfos[0].ConnectedDateTime.AddSeconds(activeChatTimeMax) > DateTime.Now ||
+                _guestInActiveDateTime.AddSeconds(activeChatTimeMax) > DateTime.Now) return;
+
+            if (_guestInActive != null)
+            {
+                // ReSharper disable once PossibleNullReferenceException
+                await (_guestInActive as IGuildUser)?.ModifyAsync(x => x.Channel = _waitingVoiceChannel);
+                UserVoiceInfo u = new UserVoiceInfo();
+                u.Set(_guestInActive, _waitingVoiceChannel, DateTime.Now);
+                userVoiceInfos.Add(u);
+                _guestInActive = null;
             }
+
+            _guestInActive = userVoiceInfos[0].User;
+            // ReSharper disable once PossibleNullReferenceException
+            await (userVoiceInfos[0].User as IGuildUser)?.ModifyAsync(x => x.Channel = _activeVoiceChannel);
+            _guestInActiveDateTime = DateTime.Now;
+            userVoiceInfos.RemoveAt(0);
         }
 
-        private SocketVoiceChannel ActiveVoiceChannel;
-        private SocketVoiceChannel WaitingVoiceChannel;
-        private class userVoiceInfo
+        private SocketVoiceChannel _activeVoiceChannel;
+        private SocketVoiceChannel _waitingVoiceChannel;
+        private class UserVoiceInfo
         {
             public SocketUser User;
+            // ReSharper disable once NotAccessedField.Local
             public SocketVoiceChannel VoiceChannel;
             public DateTime ConnectedDateTime;
 
@@ -155,13 +154,13 @@ namespace StreamBot
                 ConnectedDateTime = connectedDateTime;
             }
         }
-        private List<userVoiceInfo> userVoiceInfos = new List<userVoiceInfo>();
+        private List<UserVoiceInfo> userVoiceInfos = new List<UserVoiceInfo>();
 
         private async Task _client_UserVoiceStateUpdated(SocketUser user, SocketVoiceState previousVoiceState, SocketVoiceState currentVoiceState)
         {
             Log.Info($"User: {user}, prev: {previousVoiceState}, curr: {currentVoiceState.VoiceChannel}");
 
-            if (ActiveVoiceChannel == null || WaitingVoiceChannel == null)
+            if (_activeVoiceChannel == null || _waitingVoiceChannel == null)
             {
                 SocketGuild guild = _client.GetGuild(566158253474709505);
 
@@ -171,36 +170,36 @@ namespace StreamBot
                 {
                     if (channel.Name == "Active")
                     {
-                        ActiveVoiceChannel = channel;
+                        _activeVoiceChannel = channel;
                     }
 
                     if (channel.Name == "Waiting")
                     {
-                        WaitingVoiceChannel = channel;
+                        _waitingVoiceChannel = channel;
                     }
                 }
 
-                Log.Info($"{ActiveVoiceChannel} {WaitingVoiceChannel}");
+                Log.Info($"{_activeVoiceChannel} {_waitingVoiceChannel}");
             }
 
-            userVoiceInfo userVoice = new userVoiceInfo();
+            UserVoiceInfo userVoice = new UserVoiceInfo();
             userVoice.Set(user, currentVoiceState.VoiceChannel, DateTime.Now);
 
-            if (currentVoiceState.VoiceChannel == WaitingVoiceChannel)
+            if (currentVoiceState.VoiceChannel == _waitingVoiceChannel)
             {
                 if(!userVoiceInfos.Any(u => u.User.Id == user.Id))
                     userVoiceInfos.Add(userVoice);
 
                 Log.Info($"Waiting users");
 
-                foreach (userVoiceInfo info in userVoiceInfos)
+                foreach (UserVoiceInfo info in userVoiceInfos)
                 {
                     Log.Info($"{info.User} [{info.ConnectedDateTime}]", false);
                 }
             }
-            else if (currentVoiceState.VoiceChannel == ActiveVoiceChannel || currentVoiceState.VoiceChannel == null)
+            else if (currentVoiceState.VoiceChannel == _activeVoiceChannel || currentVoiceState.VoiceChannel == null)
             {
-                foreach (userVoiceInfo info in userVoiceInfos.Where(u=>u.User.Id == user.Id))
+                foreach (UserVoiceInfo info in userVoiceInfos.Where(u=>u.User.Id == user.Id))
                 {
                     while (true)
                     {
@@ -211,7 +210,7 @@ namespace StreamBot
 
                 Log.Info($"Waiting users");
 
-                foreach (userVoiceInfo info in userVoiceInfos)
+                foreach (UserVoiceInfo info in userVoiceInfos)
                 {
                     Log.Info($"{info.User} [{info.ConnectedDateTime}]", false);
                 }
